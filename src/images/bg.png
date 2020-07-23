@@ -1,0 +1,3 @@
+const bgImage = https://raw.githubusercontent.com/nomadcoders/nuber-client/master/src/images/bg.png
+
+export default bgImage
