@@ -1,52 +1,64 @@
-import React from "react";
+import React, { useState } from "react";
 import PhoneLoginPresenter from "./PhoneLoginPresenter";
-import { RouteComponentProps } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useMutation } from "@apollo/client";
+import { PHONE_SIGN_IN } from "./PhoneLoginQueries";
 
 interface IState {
 	countryCode: string;
+	phoneNumberS: string;
+}
+
+interface IMutationInterface {
 	phoneNumber: string;
 }
 
-class PhoneLoginContainer extends React.Component<RouteComponentProps<any>, IState> {
-	public state = {
-		countryCode: "+82",
-		phoneNumber: "",
-	};
-	public render() {
-		const { countryCode, phoneNumber } = this.state;
-		return (
-			<PhoneLoginPresenter
-				countryCode={countryCode}
-				phoneNumber={phoneNumber}
-				onInputChange={this.onInputChange}
-				onSubmit={this.onSubmit}
-			/>
-		);
-	}
-	public onInputChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement> = (
+interface IData {
+	ok: boolean;
+	error: string;
+}
+
+const PhoneLoginContainer: React.SFC<IState> = () => {
+	const [countryCode] = useState("+82");
+	const [phoneNumberS] = useState("");
+	let phoneNumber = `${countryCode}${phoneNumberS}`;
+	const [phoneSigninMutation] = useMutation<
+		{ phoneSigninMutation: IData },
+		{ phoneNumber: IMutationInterface }
+	>(PHONE_SIGN_IN, {
+		variables: { phoneNumber: { phoneNumber } },
+	});
+
+	const onInputChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement> = (
 		event
 	) => {
 		const {
 			target: { name, value },
 		} = event;
-		this.setState({
+		const character = {
 			[name]: value,
-		} as any);
+		};
+		return character;
 	};
 
-	public onSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
 		event.preventDefault();
-		const { countryCode, phoneNumber } = this.state;
-		const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(`${countryCode}${phoneNumber}`);
-		//tslint: disable-next-line
-		console.log(isValid);
+		const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(`${countryCode}${phoneNumberS}`);
 		if (isValid) {
-			return;
+			console.log(phoneSigninMutation());
 		} else {
 			toast.error("Please write a valid phone number");
 		}
 	};
-}
+
+	return (
+		<PhoneLoginPresenter
+			countryCode={countryCode}
+			phoneNumber={phoneNumberS}
+			onInputChange={onInputChange}
+			onSubmit={onSubmit}
+		/>
+	);
+};
 
 export default PhoneLoginContainer;
