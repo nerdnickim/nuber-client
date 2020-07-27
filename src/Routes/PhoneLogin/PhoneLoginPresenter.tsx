@@ -59,6 +59,7 @@ interface IProps {
 	phoneNumber: string;
 	onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 	onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+	loading: boolean;
 }
 
 const PhoneLoginPresenter: React.SFC<IProps> = ({
@@ -66,7 +67,9 @@ const PhoneLoginPresenter: React.SFC<IProps> = ({
 	phoneNumber,
 	onInputChange,
 	onSubmit,
+	loading,
 }) => {
+	console.log(loading);
 	return (
 		<Container>
 			<Helmet>

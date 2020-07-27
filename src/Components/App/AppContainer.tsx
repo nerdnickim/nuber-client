@@ -11,12 +11,12 @@ import AppPresenter from "./AppPresenter";
 const AppContainer = () => {
 	const { data } = useQuery(IS_LOGGED_IN);
 	return (
-		<>
+		<React.Fragment>
 			<ThemeProvider theme={theme}>
 				<AppPresenter isLoggedIn={data.isLoggedIn} />
 			</ThemeProvider>
 			<ToastContainer draggable={true} position={"bottom-center"} />
-		</>
+		</React.Fragment>
 	);
 };
 

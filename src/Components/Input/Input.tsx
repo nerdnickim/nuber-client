@@ -31,7 +31,7 @@ interface IProps {
 	onChange: any;
 }
 
-const Input: React.SFC<IProps> = ({
+const input: React.SFC<IProps> = ({
 	placeholder = "",
 	type = "text",
 	required = true,
@@ -49,4 +49,4 @@ const Input: React.SFC<IProps> = ({
 	/>
 );
 
-export default Input;
+export default input;

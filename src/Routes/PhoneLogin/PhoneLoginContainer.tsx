@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PhoneLoginPresenter from "./PhoneLoginPresenter";
 import { toast } from "react-toastify";
 import { useMutation } from "@apollo/client";
-import { PHONE_SIGN_IN } from "./PhoneLoginQueries";
+import { PHONE_SIGN_IN } from "./PhoneLogin.queries";
 
 interface IState {
 	countryCode: string;
@@ -20,9 +20,9 @@ interface IData {
 
 const PhoneLoginContainer: React.SFC<IState> = () => {
 	const [countryCode] = useState("+82");
-	const [phoneNumberS] = useState("");
+	const [phoneNumberS, setPhoneNumberS] = useState("");
 	let phoneNumber = `${countryCode}${phoneNumberS}`;
-	const [phoneSigninMutation] = useMutation<
+	const [phoneSigninMutation, { loading, data }] = useMutation<
 		{ phoneSigninMutation: IData },
 		{ phoneNumber: IMutationInterface }
 	>(PHONE_SIGN_IN, {
@@ -38,14 +38,17 @@ const PhoneLoginContainer: React.SFC<IState> = () => {
 		const character = {
 			[name]: value,
 		};
+		setPhoneNumberS(value);
+		console.log(character);
 		return character;
 	};
 
-	const onSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
 		const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(`${countryCode}${phoneNumberS}`);
 		if (isValid) {
-			console.log(phoneSigninMutation());
+			await phoneSigninMutation();
+			console.log(data);
 		} else {
 			toast.error("Please write a valid phone number");
 		}
@@ -57,6 +60,7 @@ const PhoneLoginContainer: React.SFC<IState> = () => {
 			phoneNumber={phoneNumberS}
 			onInputChange={onInputChange}
 			onSubmit={onSubmit}
+			loading={loading}
 		/>
 	);
 };
