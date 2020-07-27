@@ -23,8 +23,17 @@ const PhoneLoginContainer: React.SFC<IState> = () => {
 		variables: { phoneNumber: `${countryCode}${phoneNumberS}` },
 		onCompleted: (data) => {
 			const { PhoneVerification } = data;
+			const phone = `${countryCode}${phoneNumberS}`;
 			if (PhoneVerification.ok) {
-				return;
+				toast.success("SMS Sent!");
+				setTimeout(() => {
+					history.push({
+						pathname: "/verify-phone",
+						state: {
+							phone,
+						},
+					});
+				}, 2000);
 			} else {
 				toast.error(PhoneVerification.error);
 			}
@@ -49,16 +58,8 @@ const PhoneLoginContainer: React.SFC<IState> = () => {
 		event.preventDefault();
 		const phone = `${countryCode}${phoneNumberS}`;
 		const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(phone);
-		console.log(isValid, `${countryCode}${phoneNumberS}`);
 		if (isValid) {
-			//Mutation
-			console.log(await phoneSigninMutation());
-			history.push({
-				pathname: "/verify-phone",
-				state: {
-					phone,
-				},
-			});
+			await phoneSigninMutation();
 		} else {
 			toast.error("Please write a valid phone number");
 		}
