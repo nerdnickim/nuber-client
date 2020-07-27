@@ -35,9 +35,10 @@ const client = new ApolloClient({
 	cache,
 	resolvers: {
 		Mutation: {
-			logUserIn: (_, { token }, { cache }) => {
+			logUserIn: (_, { token }) => {
 				localStorage.setItem("jwt", token);
-				cache.writeData({
+				cache.writeQuery({
+					query: IS_LOGGED_IN,
 					data: {
 						__typename: "Auth",
 						isLoggedIn: true,
@@ -45,9 +46,10 @@ const client = new ApolloClient({
 				});
 				return null;
 			},
-			logUserOut: (_, __, { cache }) => {
+			logUserOut: (_, __) => {
 				localStorage.removeItem("jwt");
-				cache.writeData({
+				cache.writeQuery({
+					query: IS_LOGGED_IN,
 					data: {
 						__typename: "Auth",
 						isLoggedIn: false,
