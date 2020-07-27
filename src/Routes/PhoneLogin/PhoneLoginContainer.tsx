@@ -3,30 +3,30 @@ import PhoneLoginPresenter from "./PhoneLoginPresenter";
 import { toast } from "react-toastify";
 import { useMutation } from "@apollo/client";
 import { PHONE_SIGN_IN } from "./PhoneLogin.queries";
+import { PhoneVerificationVariables, PhoneVerification } from "../../types/api";
 
 interface IState {
 	countryCode: string;
 	phoneNumberS: string;
 }
 
-interface IMutationInterface {
-	phoneNumber: string;
-}
-
-interface IData {
-	ok: boolean;
-	error: string;
-}
-
 const PhoneLoginContainer: React.SFC<IState> = () => {
 	const [countryCode] = useState("+82");
 	const [phoneNumberS, setPhoneNumberS] = useState("");
-	let phoneNumber = `${countryCode}${phoneNumberS}`;
-	const [phoneSigninMutation, { loading, data }] = useMutation<
-		{ phoneSigninMutation: IData },
-		{ phoneNumber: IMutationInterface }
+
+	const [phoneSigninMutation, { loading }] = useMutation<
+		PhoneVerification,
+		PhoneVerificationVariables
 	>(PHONE_SIGN_IN, {
-		variables: { phoneNumber: { phoneNumber } },
+		variables: { phoneNumber: `${countryCode}${phoneNumberS}` },
+		onCompleted: (data) => {
+			const { PhoneVerification } = data;
+			if (PhoneVerification.ok) {
+				return;
+			} else {
+				toast.error(PhoneVerification.error);
+			}
+		},
 	});
 
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement | HTMLSelectElement> = (
@@ -39,16 +39,16 @@ const PhoneLoginContainer: React.SFC<IState> = () => {
 			[name]: value,
 		};
 		setPhoneNumberS(value);
-		console.log(character);
+
 		return character;
 	};
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
 		const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(`${countryCode}${phoneNumberS}`);
+		console.log(isValid, `${countryCode}${phoneNumberS}`);
 		if (isValid) {
 			await phoneSigninMutation();
-			console.log(data);
 		} else {
 			toast.error("Please write a valid phone number");
 		}
