@@ -1,5 +1,3 @@
-import React from "react";
+import VerifyPhoneContainer from "./VerifyPhoneContainer";
 
-const P = () => <span>PP</span>;
-
-export default P;
+export default VerifyPhoneContainer;

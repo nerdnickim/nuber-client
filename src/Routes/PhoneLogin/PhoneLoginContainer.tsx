@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useMutation } from "@apollo/client";
 import { PHONE_SIGN_IN } from "./PhoneLogin.queries";
 import { PhoneVerificationVariables, PhoneVerification } from "../../types/api";
+import { useHistory } from "react-router-dom";
 
 interface IState {
 	countryCode: string;
@@ -13,6 +14,7 @@ interface IState {
 const PhoneLoginContainer: React.SFC<IState> = () => {
 	const [countryCode] = useState("+82");
 	const [phoneNumberS, setPhoneNumberS] = useState("");
+	const history = useHistory();
 
 	const [phoneSigninMutation, { loading }] = useMutation<
 		PhoneVerification,
@@ -45,10 +47,18 @@ const PhoneLoginContainer: React.SFC<IState> = () => {
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
-		const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(`${countryCode}${phoneNumberS}`);
+		const phone = `${countryCode}${phoneNumberS}`;
+		const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(phone);
 		console.log(isValid, `${countryCode}${phoneNumberS}`);
 		if (isValid) {
-			await phoneSigninMutation();
+			//Mutation
+			console.log(await phoneSigninMutation());
+			history.push({
+				pathname: "/verify-phone",
+				state: {
+					phone,
+				},
+			});
 		} else {
 			toast.error("Please write a valid phone number");
 		}

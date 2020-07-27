@@ -69,7 +69,6 @@ const PhoneLoginPresenter: React.SFC<IProps> = ({
 	onSubmit,
 	loading,
 }) => {
-	console.log(loading);
 	return (
 		<Container>
 			<Helmet>
