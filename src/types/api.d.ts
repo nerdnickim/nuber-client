@@ -8,17 +8,42 @@
 // ====================================================
 
 export interface PhoneVerification_PhoneVerification {
-  __typename: "PhoneVerificationResponse";
-  ok: boolean;
-  error: string | null;
+	__typename: "PhoneVerificationResponse";
+	ok: boolean;
+	error: string | null;
 }
 
 export interface PhoneVerification {
-  PhoneVerification: PhoneVerification_PhoneVerification;
+	PhoneVerification: PhoneVerification_PhoneVerification;
 }
 
 export interface PhoneVerificationVariables {
-  phoneNumber: string;
+	phoneNumber: string;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: verifyPhone
+// ====================================================
+
+export interface verifyPhone_CompletePhoneVerification {
+	__typename: "CompletePhoneVerificationResponse";
+	ok: boolean;
+	error: string | null;
+	token: string | null;
+}
+
+export interface verifyPhone {
+	CompletePhoneVerification: verifyPhone_CompletePhoneVerification;
+}
+
+export interface verifyPhoneVariables {
+	key: string;
+	phoneNumber: string;
 }
 
 /* tslint:disable */

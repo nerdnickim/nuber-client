@@ -5,7 +5,7 @@ import {
 	ApolloLink,
 	concat,
 } from "@apollo/client";
-import { IS_LOGGED_IN } from "./Components/App/AppQueris";
+import { IS_LOGGED_IN } from "./Components/App/AppQueris.local";
 
 const cache = new InMemoryCache();
 

@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import theme from "../../theme";
 import { useQuery } from "@apollo/client";
-import { IS_LOGGED_IN } from "./AppQueris";
+import { IS_LOGGED_IN } from "./AppQueris.local";
 import AppPresenter from "./AppPresenter";
 
 const AppContainer = () => {

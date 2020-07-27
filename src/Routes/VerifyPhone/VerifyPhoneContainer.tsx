@@ -1,38 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
 import VerifyPhonePresenter from "./VerifyPhonePresenter";
-import { RouteComponentProps } from "react-router-dom";
+import { useMutation } from "@apollo/client";
+import { VERIFY_PHONE } from "./VerifyPhone.queries";
+import { verifyPhone, verifyPhoneVariables } from "../../types/api";
+import { toast } from "react-toastify";
 
-interface IState {
-	key: string;
-}
+const VerifyPhoneContainer = (props) => {
+	const { location } = props;
+	const [verificationKey, setVerificationKey] = useState("");
+	const [verifyPhoneMutation, { loading }] = useMutation<
+		verifyPhone,
+		verifyPhoneVariables
+	>(VERIFY_PHONE, {
+		variables: {
+			key: verificationKey,
+			phoneNumber: location?.state?.phone,
+		},
+		onCompleted: (data) => {
+			const { CompletePhoneVerification } = data;
 
-interface IProps extends RouteComponentProps<any> {}
+			if (CompletePhoneVerification.ok) {
+				console.log(CompletePhoneVerification);
+				toast.success("Complete verification!!");
+			} else {
+				toast.error(CompletePhoneVerification.error);
+			}
+		},
+	});
 
-class VerifyPhoneContainer extends React.Component<IProps, IState> {
-	public state = {
-		key: "",
-	};
-	constructor(props: IProps) {
-		super(props);
-		if (!props.location.state) {
-			props.history.push("/");
-		}
+	if (!props.location.state) {
+		props.history.push("/");
 	}
 
-	public onInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
 		const {
 			target: { name, value },
 		} = event;
 		const character = {
 			[name]: value,
 		};
+		setVerificationKey(value);
 
 		return character;
 	};
-	render() {
-		const { key } = this.state;
-		return <VerifyPhonePresenter key={key} onChange={this.onInputChange} />;
-	}
-}
+
+	const onSubmit: React.FormEventHandler<HTMLFormElement> = async () => {
+		await verifyPhoneMutation();
+	};
+
+	return (
+		<VerifyPhonePresenter
+			verificationKey={verificationKey}
+			onSubmit={onSubmit}
+			onChange={onInputChange}
+			loading={loading}
+		/>
+	);
+};
 
 export default VerifyPhoneContainer;
