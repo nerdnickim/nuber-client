@@ -4,10 +4,12 @@ import { useMutation } from "@apollo/client";
 import { VERIFY_PHONE } from "./VerifyPhone.queries";
 import { verifyPhone, verifyPhoneVariables } from "../../types/api";
 import { toast } from "react-toastify";
+import { IS_LOGGED_IN } from "../../SharedQueirs";
 
 const VerifyPhoneContainer = (props) => {
 	const { location } = props;
 	const [verificationKey, setVerificationKey] = useState("");
+	const [isLoggedInMutation] = useMutation(IS_LOGGED_IN);
 	const [verifyPhoneMutation, { loading }] = useMutation<
 		verifyPhone,
 		verifyPhoneVariables
@@ -20,8 +22,10 @@ const VerifyPhoneContainer = (props) => {
 			const { CompletePhoneVerification } = data;
 
 			if (CompletePhoneVerification.ok) {
-				console.log(CompletePhoneVerification);
-				toast.success("Complete verification!!");
+				if (CompletePhoneVerification.token) {
+					isLoggedInMutation({ variables: { token: CompletePhoneVerification.token } });
+					toast.success("Complete verification!!");
+				}
 			} else {
 				toast.error(CompletePhoneVerification.error);
 			}
