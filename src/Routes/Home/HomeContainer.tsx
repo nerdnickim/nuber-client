@@ -6,9 +6,7 @@ import { userProfile } from "../../types/api";
 
 const HomeContainer = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const { data, loading } = useQuery<userProfile>(USER_PROFILE);
-
-	console.log(data);
+	const { loading } = useQuery<userProfile>(USER_PROFILE);
 
 	const toggleMenu = () => {
 		setIsMenuOpen((t) => !t);
