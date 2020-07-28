@@ -2269,7 +2269,7 @@
             "deprecationReason": null
           },
           {
-            "name": "FacebookConnect",
+            "name": "FaceBookConnect",
             "description": "",
             "args": [
               {
@@ -2330,7 +2330,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "FacebookConnectResponse",
+                "name": "FaceBookConnectResponse",
                 "ofType": null
               }
             },
@@ -3013,7 +3013,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "FacebookConnectResponse",
+        "name": "FaceBookConnectResponse",
         "description": "",
         "fields": [
           {

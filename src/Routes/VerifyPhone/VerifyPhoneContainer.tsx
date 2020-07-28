@@ -4,7 +4,7 @@ import { useMutation } from "@apollo/client";
 import { VERIFY_PHONE } from "./VerifyPhone.queries";
 import { verifyPhone, verifyPhoneVariables } from "../../types/api";
 import { toast } from "react-toastify";
-import { IS_LOGGED_IN } from "../../SharedQueirs";
+import { IS_LOGGED_IN } from "../../SharedQueirs.local";
 
 const VerifyPhoneContainer = (props) => {
 	const { location } = props;
