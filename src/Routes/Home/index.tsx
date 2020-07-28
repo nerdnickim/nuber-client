@@ -1,5 +1,3 @@
-import React from "react";
+import HomeContainer from "./HomeContainer";
 
-const C = () => <span>CC</span>;
-
-export default C;
+export default HomeContainer;
