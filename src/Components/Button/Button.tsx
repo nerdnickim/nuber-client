@@ -22,7 +22,7 @@ const Container = styled.input`
 `;
 
 interface IProps {
-	value: string;
+	value: any;
 	onClick: any;
 	disabled?: boolean;
 }
