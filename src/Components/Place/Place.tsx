@@ -28,9 +28,9 @@ const Address = styled.span`
 `;
 
 interface IProps {
-	fav: boolean;
-	name: string;
-	address: string;
+	fav: boolean | undefined;
+	name: string | undefined;
+	address: string | undefined;
 }
 
 const PlacePresenter: React.SFC<IProps> = ({ fav, name, address }) => (

@@ -2,13 +2,22 @@ import React from "react";
 import SettingsPresenter from "./SettingsPresenter";
 import { useMutation, useQuery } from "@apollo/client";
 import { LOG_USER_OUT } from "src/SharedQueirs.local";
-import { USER_PROFILE } from "src/Shared.queries";
+import { USER_PROFILE, GET_PLACES } from "src/Shared.queries";
+import { userProfile, GetMyPlaces } from "src/types/api";
 
 const SettingsContainer = () => {
 	const [logOutMutation] = useMutation(LOG_USER_OUT);
-	const { data, loading } = useQuery(USER_PROFILE);
+	const { data, loading } = useQuery<userProfile>(USER_PROFILE);
+	const { data: placeData, loading: placeLoading } = useQuery<GetMyPlaces>(GET_PLACES);
+	console.log(placeData);
 	return (
-		<SettingsPresenter userData={data} loading={loading} logUserOut={logOutMutation} />
+		<SettingsPresenter
+			userData={data}
+			placeData={placeData}
+			loading={loading}
+			placeLoading={placeLoading}
+			logUserOut={logOutMutation}
+		/>
 	);
 };
 

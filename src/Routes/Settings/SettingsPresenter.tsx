@@ -4,8 +4,9 @@ import { Link } from "react-router-dom";
 import Header from "../../Components/Header";
 import Place from "../../Components/Place";
 import styled from "styled-components";
-import { userProfile } from "../../types/api";
+import { userProfile, GetMyPlaces } from "../../types/api";
 import { MutationFunction } from "@apollo/client";
+import Loading from "src/Components/Loading";
 
 const Container = styled.div`
 	padding: 0px 40px;
@@ -46,12 +47,16 @@ interface IProps {
 	logUserOut: MutationFunction;
 	userData?: userProfile;
 	loading: boolean;
+	placeData?: GetMyPlaces;
+	placeLoading: boolean;
 }
 
 const SettingsPresenter: React.SFC<IProps> = ({
 	logUserOut,
 	userData: { GetMyProfile: { user = null } = {} } = {},
 	loading,
+	placeData: { GetMyPlaces: { places = null } = {} } = {},
+	placeLoading,
 }) => (
 	<React.Fragment>
 		<Helmet>
@@ -70,9 +75,17 @@ const SettingsPresenter: React.SFC<IProps> = ({
 					</React.Fragment>
 				)}
 			</GridLink>
-			<Place fav={false} name={"Home"} address={"12345"} />
-			<Place fav={false} name={"Home"} address={"12345"} />
-			<Place fav={false} name={"Home"} address={"12345"} />
+			{placeLoading && <Loading />}
+			{!placeLoading &&
+				places?.map((place) => (
+					<Place
+						key={place?.id}
+						fav={place?.isFav}
+						name={place?.name}
+						address={place?.address}
+					/>
+				))}
+
 			<SLink to={"/places"}>Go to Places</SLink>
 			<FakeLink onClick={logUserOut as any}>Log Out</FakeLink>
 		</Container>

@@ -4,22 +4,20 @@ Client for the (N)Uber, ReactJs, Apollo,Typescript
 
 ## Screens:
 
-    - [ ]
-
 ### Logged Out:
 
-    - [ ] Home
-    - [ ] Phone Login
-    - [ ] Verify Phone Number
-    - [ ] Social Login
+    - [x] Home
+    - [x] Phone Login
+    - [x] Verify Phone Number
+    - [x] Social Login
 
 ### Logged In:
 
     - [ ] Home
     - [ ] Ride
-    - [ ] Edit Account
-    - [ ] Settings
-    - [ ] Saved Places
+    - [x] Edit Account
+    - [x] Settings
+    - [x] Places
     - [ ] Add Place
     - [ ] Find Address
     - [ ] Challenge: Ride History
