@@ -5,6 +5,7 @@ import Input from "../../Components/Input";
 import { Helmet } from "react-helmet";
 import Header from "../../Components/Header";
 import Button from "../../Components/Button";
+import PhotoInput from "src/Components/PhotoInput";
 
 const Container = styled.div``;
 
@@ -32,7 +33,14 @@ interface IProps {
 	};
 
 	onSubmit: (event: React.ChangeEvent<Element>) => void;
+	profilePhoto: {
+		value: any;
+		onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+		setValue: React.Dispatch<any>;
+	};
 	loading: boolean;
+	uploading: boolean;
+	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const EditAccountPresenter: React.SFC<IProps> = ({
@@ -40,6 +48,9 @@ const EditAccountPresenter: React.SFC<IProps> = ({
 	lastName,
 	email,
 	onSubmit,
+	profilePhoto,
+	uploading,
+	onChange,
 }) => {
 	return (
 		<Container>
@@ -48,6 +59,11 @@ const EditAccountPresenter: React.SFC<IProps> = ({
 			</Helmet>
 			<Header title={"Edit Account"} backTo={"/"} />
 			<ExtendedForm onSubmitFn={onSubmit}>
+				<PhotoInput
+					uploading={uploading}
+					fileUrl={profilePhoto.value}
+					onChange={onChange}
+				/>
 				<ExtendedInput
 					onChange={firstName.onChange}
 					type={"text"}
