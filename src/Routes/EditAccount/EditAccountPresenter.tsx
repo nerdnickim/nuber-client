@@ -35,14 +35,19 @@ interface IProps {
 	loading: boolean;
 }
 
-const EditAccountPresenter: React.SFC<IProps> = ({ firstName, lastName, email }) => {
+const EditAccountPresenter: React.SFC<IProps> = ({
+	firstName,
+	lastName,
+	email,
+	onSubmit,
+}) => {
 	return (
 		<Container>
 			<Helmet>
 				<title>Edit Account | Number</title>
 			</Helmet>
 			<Header title={"Edit Account"} backTo={"/"} />
-			<ExtendedForm onSubmitFn={null}>
+			<ExtendedForm onSubmitFn={onSubmit}>
 				<ExtendedInput
 					onChange={firstName.onChange}
 					type={"text"}
