@@ -9,7 +9,7 @@ const SettingsContainer = () => {
 	const [logOutMutation] = useMutation(LOG_USER_OUT);
 	const { data, loading } = useQuery<userProfile>(USER_PROFILE);
 	const { data: placeData, loading: placeLoading } = useQuery<GetMyPlaces>(GET_PLACES);
-	console.log(placeData);
+
 	return (
 		<SettingsPresenter
 			userData={data}
