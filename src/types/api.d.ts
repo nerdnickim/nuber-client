@@ -23,6 +23,32 @@ export interface toggleDriving {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL mutation operation: UpdataMyProfile
+// ====================================================
+
+export interface UpdataMyProfile_UpdataMyProfile {
+  __typename: "UpdataMyProfileResponse";
+  ok: boolean;
+  error: string | null;
+}
+
+export interface UpdataMyProfile {
+  UpdataMyProfile: UpdataMyProfile_UpdataMyProfile;
+}
+
+export interface UpdataMyProfileVariables {
+  firstName: string;
+  lastName: string;
+  email: string;
+  profilePhoto: string;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL mutation operation: PhoneVerification
 // ====================================================
 
