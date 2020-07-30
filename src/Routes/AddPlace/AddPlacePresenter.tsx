@@ -34,12 +34,19 @@ interface IProps {
 		setValue: React.Dispatch<any>;
 	};
 	loading: boolean;
+	pickupAddress: boolean;
 	mutation: (
 		options?: MutationFunctionOptions<AddPlace, AddPlaceVariables> | undefined
 	) => Promise<FetchResult<AddPlace, Record<string, any>>>;
 }
 
-const AddPlacePresenter: React.SFC<IProps> = ({ name, address, loading, mutation }) => {
+const AddPlacePresenter: React.SFC<IProps> = ({
+	name,
+	address,
+	loading,
+	mutation,
+	pickupAddress,
+}) => {
 	return (
 		<React.Fragment>
 			<Helmet>
@@ -63,7 +70,9 @@ const AddPlacePresenter: React.SFC<IProps> = ({ name, address, loading, mutation
 						name={"address"}
 					/>
 					<ExtendedLink to={"/find-address"}>Pick place from map</ExtendedLink>
-					<Button onClick={null} value={loading ? <Loading /> : "Add Place"} />
+					{pickupAddress && (
+						<Button onClick={null} value={loading ? <Loading /> : "Add Place"} />
+					)}
 				</Form>
 			</Container>
 		</React.Fragment>

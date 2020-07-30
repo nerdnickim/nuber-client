@@ -11,14 +11,16 @@ import { toast } from "react-toastify";
 const AddPlaceContainer = () => {
 	const name = useInput("");
 	const address = useInput("");
+	const lat = useInput(0);
+	const lng = useInput(0);
 	const history = useHistory();
 	const [addPlaceMutation, { loading }] = useMutation<AddPlace, AddPlaceVariables>(
 		ADD_PLACE,
 		{
 			variables: {
 				name: name.value,
-				lat: 2.111,
-				lng: 2.314,
+				lat: lat.value,
+				lng: lng.value,
 				address: address.value,
 				isFav: false,
 			},
@@ -42,6 +44,7 @@ const AddPlaceContainer = () => {
 			address={address}
 			loading={loading}
 			mutation={addPlaceMutation}
+			pickupAddress={lat.value !== 0 && lng.value !== 0}
 		/>
 	);
 };
