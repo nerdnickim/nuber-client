@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import FindAddressPresenter from "./FindAddressPresenter";
+import { reverseGeoCode } from "src/mapHelpers";
 
 const FindAddressContainer = ({ google }) => {
 	let mapRef = useRef();
@@ -30,6 +31,7 @@ const FindAddressContainer = ({ google }) => {
 
 			state.lat = lat;
 			state.lng = lng;
+			reverseGeoCode(lat, lng);
 		});
 	};
 
