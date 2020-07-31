@@ -6,6 +6,22 @@ import Menu from "../../Components/Menu";
 
 const Container = styled.div``;
 
+const MunuButton = styled.button`
+	appearance: none;
+	padding: 10px;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	text-align: center;
+	font-weight: 800;
+	border: 0;
+	cursor: pointer;
+	font-size: 20px;
+	transform: rotate(90deg);
+	z-index: 2;
+	background-color: transparent;
+`;
+
 const Map = styled.div`
 	position: absolute;
 	top: 0;
@@ -20,6 +36,7 @@ interface IProps {
 		lat: number;
 		lng: number;
 		isMenuOpen: boolean;
+		map: any;
 		userMarker: any;
 	};
 	toggleMenu: () => void;
@@ -44,7 +61,7 @@ const HomePresenter: React.SFC<IProps> = ({ state, toggleMenu, loading, mapRef }
 				},
 			}}
 		>
-			{!loading && <button onClick={toggleMenu}>Open sidebar</button>}
+			{!loading && <MunuButton onClick={toggleMenu}>|||</MunuButton>}
 		</Sidebar>
 		<Map ref={mapRef} />
 	</Container>

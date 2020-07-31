@@ -7,12 +7,12 @@ import { userProfile } from "../../types/api";
 
 const HomeContainer = ({ google }) => {
 	let mapRef = useRef();
-	const [map, setMap] = useState<any>();
 	const [mapRefS, setMapRefS] = useState(mapRef);
 	const [state, setState] = useState({
 		lat: 0,
 		lng: 0,
 		isMenuOpen: false,
+		map: google.maps.Map,
 		userMarker: google.maps.Marker,
 	});
 	const { loading } = useQuery<userProfile>(USER_PROFILE);
@@ -33,8 +33,7 @@ const HomeContainer = ({ google }) => {
 			zoom: 8,
 			minZoom: 15,
 		});
-		let map: google.maps.Map = new maps.Map(mpaNode, mapConfig);
-		setMap(map);
+		state.map = new maps.Map(mpaNode, mapConfig);
 		setMapRefS(mapRefS);
 
 		const userMarkerOptions: google.maps.MarkerOptions = {
@@ -48,7 +47,7 @@ const HomeContainer = ({ google }) => {
 			},
 		};
 		state.userMarker = new maps.Marker(userMarkerOptions);
-		state.userMarker.setMap(map);
+		state.userMarker.setMap(state.map);
 		const watchOptions: PositionOptions = {
 			enableHighAccuracy: true,
 		};
@@ -59,7 +58,6 @@ const HomeContainer = ({ google }) => {
 			watchOptions
 		);
 	};
-	console.log(map, state);
 
 	const handleGeoSucces = (position: Position) => {
 		const {
@@ -73,14 +71,18 @@ const HomeContainer = ({ google }) => {
 	};
 
 	const handleGeoWatchSuccess = (position: Position) => {
-		return;
+		const {
+			coords: { latitude, longitude },
+		} = position;
+		state.userMarker.setPosition({ lat: latitude, lng: longitude });
+		state.map.panTo({ lat: latitude, lng: longitude });
 	};
 	const handleGeoWatchError = () => {
 		console.log("Error watching you");
 	};
 
 	useEffect(() => {
-		navigator.geolocation.watchPosition(handleGeoSucces, handleGeoError);
+		navigator.geolocation.getCurrentPosition(handleGeoSucces, handleGeoError);
 	}, []);
 	return (
 		<HomePresenter
