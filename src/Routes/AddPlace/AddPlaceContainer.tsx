@@ -8,11 +8,13 @@ import { GET_PLACES } from "src/Shared.queries";
 import { useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const AddPlaceContainer = () => {
+const AddPlaceContainer = ({ location }) => {
+	const { state } = location;
+	console.log(state);
 	const name = useInput("");
-	const address = useInput("");
-	const lat = useInput(0);
-	const lng = useInput(0);
+	const address = useInput(state?.address || "");
+	const lat = useInput(state?.lat || 0);
+	const lng = useInput(state?.lng || 0);
 	const history = useHistory();
 	const [addPlaceMutation, { loading }] = useMutation<AddPlace, AddPlaceVariables>(
 		ADD_PLACE,

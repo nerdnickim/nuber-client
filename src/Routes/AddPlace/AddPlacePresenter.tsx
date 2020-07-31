@@ -12,11 +12,11 @@ import { AddPlace, AddPlaceVariables } from "src/types/api";
 
 const Container = styled.div``;
 
-const ExtendedInput = styled(Input)`
+const ExtendedInput = styled.div`
 	margin-bottom: 30px;
 `;
 
-const ExtendedLink = styled(Link)`
+const ExtendedLink = styled.div`
 	margin-top: 50px;
 	margin-bottom: 20px;
 	display: block;
@@ -55,21 +55,27 @@ const AddPlacePresenter: React.SFC<IProps> = ({
 			<Header title={"Places"} backTo={"/places"} />
 			<Container>
 				<Form onSubmitFn={mutation}>
-					<ExtendedInput
-						placeholder={"Name"}
-						type={"text"}
-						value={name.value}
-						onChange={name.onChange}
-						name={"name"}
-					/>
-					<ExtendedInput
-						placeholder={"Address"}
-						type={"text"}
-						value={address.value}
-						onChange={address.onChange}
-						name={"address"}
-					/>
-					<ExtendedLink to={"/find-address"}>Pick place from map</ExtendedLink>
+					<ExtendedInput>
+						<Input
+							placeholder={"Name"}
+							type={"text"}
+							value={name.value}
+							onChange={name.onChange}
+							name={"name"}
+						/>
+					</ExtendedInput>
+					<ExtendedInput>
+						<Input
+							placeholder={"Address"}
+							type={"text"}
+							value={address.value}
+							onChange={address.onChange}
+							name={"address"}
+						/>
+					</ExtendedInput>
+					<ExtendedLink>
+						<Link to={"/find-address"}>Pick place from map</Link>
+					</ExtendedLink>
 					{pickupAddress && (
 						<Button onClick={null} value={loading ? <Loading /> : "Add Place"} />
 					)}

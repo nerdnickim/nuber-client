@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import FindAddressPresenter from "./FindAddressPresenter";
 import { reverseGeoCode, geoCode } from "src/mapHelpers";
+import { useHistory } from "react-router-dom";
 
 const FindAddressContainer = ({ google }) => {
 	let mapRef = useRef();
+	const history = useHistory();
 	const [map, setMap] = useState<any>();
 	const [mapRefS, setMapRefS] = useState(mapRef);
 	const [state, setState] = useState({
@@ -75,6 +77,18 @@ const FindAddressContainer = ({ google }) => {
 		}
 	};
 
+	const onPickPlace = () => {
+		const { lat, lng, address } = state;
+		history.push({
+			pathname: "/add-place",
+			state: {
+				lat,
+				lng,
+				address,
+			},
+		});
+	};
+
 	useEffect(() => {
 		navigator.geolocation.getCurrentPosition(handleGeoSucces, handleError);
 	}, []);
@@ -85,6 +99,7 @@ const FindAddressContainer = ({ google }) => {
 			address={state.address}
 			onBlur={onInputBlur}
 			onChange={onInputChange}
+			onPickPlace={onPickPlace}
 		/>
 	);
 };

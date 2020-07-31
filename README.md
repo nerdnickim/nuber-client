@@ -18,6 +18,6 @@ Client for the (N)Uber, ReactJs, Apollo,Typescript
     - [x] Edit Account
     - [x] Settings
     - [x] Places
-    - [ ] Add Place
-    - [ ] Find Address
+    - [x] Add Place
+    - [x] Find Address
     - [ ] Challenge: Ride History

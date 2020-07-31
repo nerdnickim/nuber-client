@@ -2,6 +2,7 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import styled from "src/typed-components";
 import AddressBar from "src/Components/AddressBar";
+import Button from "src/Components/Button";
 
 const Map = styled.div`
 	position: absolute;
@@ -25,11 +26,23 @@ const Center = styled.span`
 	bottom: 0;
 `;
 
+const ExtendedButton = styled.div`
+	position: absolute;
+	bottom: 50px;
+	left: 0;
+	right: 0;
+	margin: auto;
+	z-index: 10;
+	height: auto;
+	width: 80%;
+`;
+
 interface IProps {
 	mapRef: any;
 	address: string;
 	onBlur: () => void;
 	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	onPickPlace: () => void;
 }
 
 const FindAddressPresenter: React.SFC<IProps> = ({
@@ -37,6 +50,7 @@ const FindAddressPresenter: React.SFC<IProps> = ({
 	address,
 	onBlur,
 	onChange,
+	onPickPlace,
 }) => {
 	return (
 		<div>
@@ -44,6 +58,9 @@ const FindAddressPresenter: React.SFC<IProps> = ({
 				<title>Find Address | nuber</title>
 			</Helmet>
 			<AddressBar value={address} onBlur={onBlur} onChange={onChange} name={"name"} />
+			<ExtendedButton>
+				<Button value={"Pick this place"} onClick={onPickPlace} />
+			</ExtendedButton>
 			<Center role="img">📍</Center>
 			<Map ref={mapRef} />
 		</div>
