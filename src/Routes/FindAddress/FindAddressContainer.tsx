@@ -8,7 +8,6 @@ const FindAddressContainer = ({ google }) => {
 	let mapRef = useRef();
 	const history = useHistory();
 	const [map, setMap] = useState<any>();
-	const [mapRefS, setMapRefS] = useState(mapRef);
 	const [state, setState] = useState({
 		lat: 0,
 		lng: 0,
@@ -18,7 +17,7 @@ const FindAddressContainer = ({ google }) => {
 	const loadMap = (lat, lng) => {
 		const maps = google.maps;
 		const mpaNode = ReactDOM.findDOMNode(mapRef.current);
-		const mapConfig = (google.maps.MapOptions = {
+		const mapConfig: google.maps.MapOptions = {
 			center: {
 				lat,
 				lng,
@@ -26,10 +25,10 @@ const FindAddressContainer = ({ google }) => {
 			disableDefaultUI: true,
 			zoom: 8,
 			minZoom: 15,
-		});
+		};
+
 		let map: google.maps.Map = new maps.Map(mpaNode, mapConfig);
 		setMap(map);
-		setMapRefS(mapRefS);
 		map.addListener("dragend", async () => {
 			const newCenter = map.getCenter();
 			const lat = newCenter.lat();
@@ -46,6 +45,7 @@ const FindAddressContainer = ({ google }) => {
 		const {
 			coords: { latitude, longitude },
 		} = position;
+		console.log(latitude, longitude);
 		const reverseAddress = await reverseGeoCode(latitude, longitude);
 		setState((prev) => ({
 			...prev,
@@ -95,7 +95,7 @@ const FindAddressContainer = ({ google }) => {
 
 	return (
 		<FindAddressPresenter
-			mapRef={mapRefS}
+			mapRef={mapRef}
 			address={state.address}
 			onBlur={onInputBlur}
 			onChange={onInputChange}

@@ -14,4 +14,4 @@ function IndexA() {
 	);
 }
 
-render(<IndexA />, document.getElementById("root"));
+render(<IndexA />, document.getElementById("root") as HTMLElement);
