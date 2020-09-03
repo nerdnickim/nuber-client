@@ -9,6 +9,8 @@ import { Link } from "react-router-dom";
 
 const Container = styled.div`
 	padding: 0 30px;
+	display: flex;
+	flex-direction: column;
 `;
 
 const ExtendedPlace = styled(Place)``;

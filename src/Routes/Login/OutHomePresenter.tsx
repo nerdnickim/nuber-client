@@ -73,7 +73,10 @@ const OutHomePresenter: React.SFC<IProps> = () => (
 				<PhoneLogin>
 					<Subtitle>Get moving with Nuber</Subtitle>
 					<FakeInput>
-						🇰🇷 +82 <Grey>Enter your mobile number</Grey>
+						<span role="img" aria-label="country">
+							🇰🇷
+						</span>{" "}
+						+82 <Grey>Enter your mobile number</Grey>
 					</FakeInput>
 				</PhoneLogin>
 			</Link>

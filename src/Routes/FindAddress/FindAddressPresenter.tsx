@@ -61,7 +61,11 @@ const FindAddressPresenter: React.SFC<IProps> = ({
 			<ExtendedButton>
 				<Button value={"Pick this place"} onClick={onPickPlace} />
 			</ExtendedButton>
-			<Center role="img">📍</Center>
+			<Center>
+				<span role="img" aria-label="img">
+					📍
+				</span>
+			</Center>
 			<Map ref={mapRef} />
 		</div>
 	);

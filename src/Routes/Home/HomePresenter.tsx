@@ -30,7 +30,6 @@ const Map = styled.div`
 	left: 0;
 	height: 100%;
 	width: 100%;
-	z-index: -1;
 `;
 
 const ExtendedButton = styled.div`
@@ -92,7 +91,7 @@ const HomePresenter: React.SFC<IProps> = ({
 					name={"address"}
 				/>
 				{!loading && <MunuButton onClick={toggleMenu}>|||</MunuButton>}
-				<Map ref={mapRef} />
+				<Map id="map" ref={mapRef} />
 				<ExtendedButton>
 					<Button
 						value={"Pick this place"}

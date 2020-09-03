@@ -25,9 +25,13 @@ export const geoCode = async (address: string) => {
 export const reverseGeoCode = async (lat: number, lng: number) => {
 	const URL = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${MAPS_KEY}`;
 	const { status, data } = await axios(URL);
+
 	if (status === 200) {
 		const { results } = data;
 		const firstPlace = results[0];
+		if (!firstPlace) {
+			return false;
+		}
 		const address = firstPlace?.formatted_address;
 		return address;
 	} else {

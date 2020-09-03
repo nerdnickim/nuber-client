@@ -9,17 +9,18 @@ import { geoCode } from "src/mapHelpers";
 const HomeContainer = ({ google }) => {
 	let mapRef = useRef();
 
-	let map: google.maps.Map;
+	let map: google.maps.Map = google.maps;
 	let userMarker: google.maps.Marker;
 	let toMarker: google.maps.Marker;
 
+	const [mapS, setMapS] = useState(map);
 	const [state, setState] = useState({
+		isMenuOpen: false,
 		lat: 0,
 		lng: 0,
+		address: "",
 		toLat: 0,
 		toLng: 0,
-		isMenuOpen: false,
-		address: "",
 	});
 
 	const { loading } = useQuery<userProfile>(USER_PROFILE);
@@ -37,11 +38,10 @@ const HomeContainer = ({ google }) => {
 				lng,
 			},
 			disableDefaultUI: true,
-			zoom: 8,
-			minZoom: 13,
+			zoom: 13,
 		};
 
-		map = new maps.Map(mpaNode, mapConfig);
+		map = new maps.Map(mpaNode as HTMLElement, mapConfig);
 
 		const userMarkerOptions: google.maps.MarkerOptions = {
 			icon: {
@@ -53,8 +53,11 @@ const HomeContainer = ({ google }) => {
 				lng,
 			},
 		};
-		userMarker = new maps.Marker(userMarkerOptions);
+
+		setMapS(map);
+		userMarker = new maps.Marker(userMarkerOptions, { title: "I'm here" });
 		userMarker.setMap(map);
+
 		const watchOptions: PositionOptions = {
 			enableHighAccuracy: true,
 		};
@@ -107,6 +110,7 @@ const HomeContainer = ({ google }) => {
 				toLng: lng,
 				address: formatted_address,
 			}));
+
 			if (toMarker) {
 				toMarker.setMap(null);
 			}
@@ -118,12 +122,13 @@ const HomeContainer = ({ google }) => {
 			};
 
 			toMarker = new maps.Marker(toMarkerOptions);
-			toMarker.setMap(map);
+			toMarker.setMap(mapS);
 		}
 	};
 
 	useEffect(() => {
 		navigator.geolocation.getCurrentPosition(handleGeoSucces, handleGeoError);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	return (
 		<HomePresenter

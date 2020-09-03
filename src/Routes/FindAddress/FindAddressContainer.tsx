@@ -6,13 +6,29 @@ import { useHistory } from "react-router-dom";
 
 const FindAddressContainer = ({ google }) => {
 	let mapRef = useRef();
+	let map = google.maps.Map;
 	const history = useHistory();
-	const [map, setMap] = useState<any>();
 	const [state, setState] = useState({
 		lat: 0,
 		lng: 0,
 		address: "",
 	});
+
+	const reverseGeoCodeAddress = async (lat: number, lng: number) => {
+		const reverseAddress = await reverseGeoCode(lat, lng);
+
+		if (reverseAddress !== false) {
+			setState((prev) => ({ ...prev, address: reverseAddress }));
+		}
+	};
+
+	const handleDragEnd = () => {
+		const newCenter = map.getCenter();
+		const lat = newCenter.lat();
+		const lng = newCenter.lng();
+		setState((prev) => ({ ...prev, lat, lng }));
+		reverseGeoCodeAddress(lat, lng);
+	};
 
 	const loadMap = (lat, lng) => {
 		const maps = google.maps;
@@ -23,38 +39,27 @@ const FindAddressContainer = ({ google }) => {
 				lng,
 			},
 			disableDefaultUI: true,
-			zoom: 8,
-			minZoom: 15,
+			minZoom: 8,
+			zoom: 11,
 		};
 
-		let map: google.maps.Map = new maps.Map(mpaNode, mapConfig);
-		setMap(map);
-		map.addListener("dragend", async () => {
-			const newCenter = map.getCenter();
-			const lat = newCenter.lat();
-			const lng = newCenter.lng();
-			setState((prev) => ({ ...prev, lat, lng }));
-			const reverseAddress = await reverseGeoCode(lat, lng);
-			if (reverseAddress !== false) {
-				setState((prev) => ({ ...prev, address: reverseAddress }));
-			}
-		});
+		map = new maps.Map(mpaNode as HTMLElement, mapConfig);
+		map.addListener("dragend", handleDragEnd);
 	};
 
-	const handleGeoSucces = async (position: Position) => {
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const handleGeoSucces = (position: Position) => {
 		const {
 			coords: { latitude, longitude },
 		} = position;
-		console.log(latitude, longitude);
-		const reverseAddress = await reverseGeoCode(latitude, longitude);
+
 		setState((prev) => ({
 			...prev,
 			lat: latitude,
 			lng: longitude,
-			address: reverseAddress,
 		}));
-
 		loadMap(latitude, longitude);
+		reverseGeoCodeAddress(latitude, longitude);
 	};
 
 	const handleError = () => {
@@ -70,9 +75,10 @@ const FindAddressContainer = ({ google }) => {
 
 	const onInputBlur = async () => {
 		const result = await geoCode(state.address);
+
 		if (result !== false) {
-			const { lat, lng, formatted_address } = result;
-			setState((prev) => ({ ...prev, lat, lng, address: formatted_address }));
+			const { lat, lng, formatted_address: formatedAddress } = result;
+			setState((prev) => ({ ...prev, lat, lng, address: formatedAddress }));
 			map.panTo({ lat, lng });
 		}
 	};
@@ -91,7 +97,7 @@ const FindAddressContainer = ({ google }) => {
 
 	useEffect(() => {
 		navigator.geolocation.getCurrentPosition(handleGeoSucces, handleError);
-	}, []);
+	});
 
 	return (
 		<FindAddressPresenter
