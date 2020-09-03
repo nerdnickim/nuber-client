@@ -6,15 +6,24 @@ import { USER_PROFILE } from "../../Shared.queries";
 import { userProfile } from "../../types/api";
 import { geoCode } from "src/mapHelpers";
 
+interface IState {
+	isMenuOpen: boolean;
+	lat: number;
+	lng: number;
+	address: string;
+	toLat: number;
+	toLng: number;
+}
+
 const HomeContainer = ({ google }) => {
 	let mapRef = useRef();
 
 	let map: google.maps.Map = google.maps;
 	let userMarker: google.maps.Marker;
 	let toMarker: google.maps.Marker;
-
-	const [mapS, setMapS] = useState(map);
-	const [state, setState] = useState({
+	let directions: google.maps.DirectionsRenderer;
+	const [mapT, setMapT] = useState<any>(map);
+	const [state, setState] = useState<IState>({
 		isMenuOpen: false,
 		lat: 0,
 		lng: 0,
@@ -54,7 +63,7 @@ const HomeContainer = ({ google }) => {
 			},
 		};
 
-		setMapS(map);
+		setMapT(map);
 		userMarker = new maps.Marker(userMarkerOptions, { title: "I'm here" });
 		userMarker.setMap(map);
 
@@ -104,12 +113,6 @@ const HomeContainer = ({ google }) => {
 
 		if (result !== false) {
 			const { lat, lng, formatted_address } = result;
-			setState((prev) => ({
-				...prev,
-				toLat: lat,
-				toLng: lng,
-				address: formatted_address,
-			}));
 
 			if (toMarker) {
 				toMarker.setMap(null);
@@ -122,7 +125,21 @@ const HomeContainer = ({ google }) => {
 			};
 
 			toMarker = new maps.Marker(toMarkerOptions);
-			toMarker.setMap(mapS);
+			toMarker.setMap(mapT);
+			const bounds = new maps.LatLngBounds();
+			bounds.extend({ lat, lng });
+			bounds.extend({ lat: state.lat, lng: state.lng });
+			mapT.fitBounds(bounds);
+
+			state.toLat = lat;
+			state.toLng = lng;
+
+			setState({
+				...state,
+				toLat: lat,
+				toLng: lng,
+				address: formatted_address,
+			});
 		}
 	};
 
