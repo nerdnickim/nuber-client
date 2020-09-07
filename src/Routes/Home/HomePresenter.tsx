@@ -38,6 +38,10 @@ const ExtendedButton = styled.div`
 	width: 80%;
 `;
 
+const RequestButton = styled(ExtendedButton)`
+	bottom: 200px;
+`;
+
 const containerStyle = {
 	width: "100%",
 	height: "100%",
@@ -101,11 +105,20 @@ const HomePresenter = ({
 								callback={callback}
 							/>
 						)}
+						{state.price !== "" && (
+							<RequestButton>
+								<Button
+									onClick={onSubmit}
+									disabled={state.toAddress === ""}
+									value={`Request Ride ($${state.price})`}
+								/>
+							</RequestButton>
+						)}
 					</GoogleMap>
 				</LoadScript>
 				<ExtendedButton>
 					<Button
-						value={"Pick this place"}
+						value={state.price !== "" ? "Change Address" : "Pick this place"}
 						disabled={state.toAddress === ""}
 						onClick={onSubmit}
 					/>

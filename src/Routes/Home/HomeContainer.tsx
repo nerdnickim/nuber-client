@@ -2,18 +2,39 @@
 import React, { useState, useCallback, useEffect } from "react";
 
 import HomePresenter from "./HomePresenter";
-import { useQuery } from "@apollo/client";
-import { userProfile } from "src/types/api";
+import { useQuery, useMutation } from "@apollo/client";
+import {
+	userProfile,
+	reportMovement,
+	reportMovementVariables,
+	getDrivers,
+} from "src/types/api";
 import { USER_PROFILE } from "src/Shared.queries";
 import { geoCode, reverseGeoCode } from "src/mapHelpers";
+import { REPORT_LOCATION, GET_NEARBY_DRIVERS } from "./Home.queries";
 
 interface IProps {
 	google: any;
 }
 
 const HomeContainer: React.FC<IProps> = () => {
-	const { loading } = useQuery<userProfile>(USER_PROFILE);
-
+	const { loading, data: getUserProfile } = useQuery<userProfile>(USER_PROFILE);
+	const [reportMovementMutation] = useMutation<reportMovement, reportMovementVariables>(
+		REPORT_LOCATION
+	);
+	const { data: getDriversData } = useQuery<getDrivers>(GET_NEARBY_DRIVERS, {
+		skip: getUserProfile?.GetMyProfile?.user?.isDriving,
+		onCompleted: () => {
+			if (getDriversData) {
+				const {
+					GetNearbyDrivers: { ok, drivers },
+				} = getDriversData;
+				if (ok && drivers) {
+					console.log(drivers);
+				}
+			}
+		},
+	});
 	const [mapT, setMap] = useState<any>(null);
 
 	const [state, setState] = useState({
@@ -43,6 +64,11 @@ const HomeContainer: React.FC<IProps> = () => {
 
 		const reverseResult = await reverseGeoCode(latitude, longitude);
 		setState({ ...state, address: reverseResult });
+
+		const { data } = await reportMovementMutation({
+			variables: { lat: latitude, lng: longitude },
+		});
+		console.log(data);
 	};
 
 	const handleGeoError = () => {};
@@ -119,15 +145,19 @@ const HomeContainer: React.FC<IProps> = () => {
 	});
 
 	return (
-		<HomePresenter
-			onLoad={onLoad}
-			state={state}
-			toggleMenu={toggleMenu}
-			loading={loading}
-			onChange={onInputChange}
-			onSubmit={onAddressSubmit}
-			callback={onCallback}
-		/>
+		<React.Fragment>
+			{getUserProfile?.GetMyProfile?.user && (
+				<HomePresenter
+					onLoad={onLoad}
+					state={state}
+					toggleMenu={toggleMenu}
+					loading={loading}
+					onChange={onInputChange}
+					onSubmit={onAddressSubmit}
+					callback={onCallback}
+				/>
+			)}
+		</React.Fragment>
 	);
 };
 
