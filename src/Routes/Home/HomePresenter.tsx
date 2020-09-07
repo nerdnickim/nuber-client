@@ -5,6 +5,9 @@ import styled from "../../typed-components";
 import Menu from "../../Components/Menu";
 import AddressBar from "src/Components/AddressBar";
 import Button from "src/Components/Button";
+import { GoogleMap, LoadScript, Marker, DirectionsService } from "@react-google-maps/api";
+import { MAPS_KEY } from "src/keys";
+import { marker_Me } from "src/Components/Icons";
 
 const Container = styled.div``;
 
@@ -24,14 +27,6 @@ const MunuButton = styled.button`
 	background-color: transparent;
 `;
 
-const Map = styled.div`
-	position: absolute;
-	top: 0;
-	left: 0;
-	height: 100%;
-	width: 100%;
-`;
-
 const ExtendedButton = styled.div`
 	position: absolute;
 	bottom: 50px;
@@ -43,29 +38,19 @@ const ExtendedButton = styled.div`
 	width: 80%;
 `;
 
-interface IProps {
-	state: {
-		lat: number;
-		lng: number;
-		isMenuOpen: boolean;
-		address: string;
-		toLat: number;
-		toLng: number;
-	};
-	toggleMenu: () => void;
-	loading: boolean;
-	mapRef: any;
-	onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	onSubmit: () => Promise<void>;
-}
+const containerStyle = {
+	width: "100%",
+	height: "100%",
+};
 
-const HomePresenter: React.SFC<IProps> = ({
+const HomePresenter = ({
+	onLoad,
 	state,
 	toggleMenu,
 	loading,
-	mapRef,
 	onChange,
 	onSubmit,
+	callback,
 }) => {
 	return (
 		<Container>
@@ -85,17 +70,43 @@ const HomePresenter: React.SFC<IProps> = ({
 				}}
 			>
 				<AddressBar
-					value={state.address}
+					value={state.toAddress}
 					onBlur={() => null}
 					onChange={onChange}
 					name={"address"}
 				/>
 				{!loading && <MunuButton onClick={toggleMenu}>|||</MunuButton>}
-				<Map id="map" ref={mapRef} />
+				<LoadScript googleMapsApiKey={MAPS_KEY}>
+					<GoogleMap
+						zoom={16}
+						onLoad={onLoad}
+						mapContainerStyle={containerStyle}
+						center={{ lat: 46.23, lng: 2.21 }}
+					>
+						<Marker position={{ lat: 46.23, lng: 2.21 }} icon={{ path: marker_Me }} />
+						{state.toLat !== 0 && state.toLng !== 0 && (
+							<Marker
+								position={{ lat: state.toLat, lng: state.toLng }}
+								title={"To Place"}
+								animation={window.google.maps.Animation.DROP}
+							/>
+						)}
+						{state.address !== "" && state.toAddress !== "" && (
+							<DirectionsService
+								options={{
+									destination: { lat: state.toLat, lng: state.toLng },
+									origin: { lat: 46.23, lng: 2.21 },
+									travelMode: state.travelMode,
+								}}
+								callback={callback}
+							/>
+						)}
+					</GoogleMap>
+				</LoadScript>
 				<ExtendedButton>
 					<Button
 						value={"Pick this place"}
-						disabled={state.address === ""}
+						disabled={state.toAddress === ""}
 						onClick={onSubmit}
 					/>
 				</ExtendedButton>

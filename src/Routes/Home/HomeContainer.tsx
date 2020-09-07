@@ -1,162 +1,134 @@
-import React, { useState, useRef, useEffect } from "react";
-import ReactDOM from "react-dom";
+/*Global googl */
+import React, { useState, useCallback, useEffect } from "react";
+
 import HomePresenter from "./HomePresenter";
 import { useQuery } from "@apollo/client";
-import { USER_PROFILE } from "../../Shared.queries";
-import { userProfile } from "../../types/api";
-import { geoCode } from "src/mapHelpers";
+import { userProfile } from "src/types/api";
+import { USER_PROFILE } from "src/Shared.queries";
+import { geoCode, reverseGeoCode } from "src/mapHelpers";
 
-interface IState {
-	isMenuOpen: boolean;
-	lat: number;
-	lng: number;
-	address: string;
-	toLat: number;
-	toLng: number;
+interface IProps {
+	google: any;
 }
 
-const HomeContainer = ({ google }) => {
-	let mapRef = useRef();
+const HomeContainer: React.FC<IProps> = () => {
+	const { loading } = useQuery<userProfile>(USER_PROFILE);
 
-	let map: google.maps.Map = google.maps;
-	let userMarker: google.maps.Marker;
-	let toMarker: google.maps.Marker;
-	let directions: google.maps.DirectionsRenderer;
-	const [mapT, setMapT] = useState<any>(map);
-	const [state, setState] = useState<IState>({
+	const [mapT, setMap] = useState<any>(null);
+
+	const [state, setState] = useState({
 		isMenuOpen: false,
 		lat: 0,
 		lng: 0,
+		toAddress: "",
 		address: "",
 		toLat: 0,
 		toLng: 0,
+		travelMode: "DRIVING",
+		response: undefined,
+		distance: "",
+		duration: "",
+		price: "",
 	});
 
-	const { loading } = useQuery<userProfile>(USER_PROFILE);
-
 	const toggleMenu = () => {
-		setState((prev) => ({ ...prev, isMenuOpen: !prev.isMenuOpen }));
+		setState({ ...state, isMenuOpen: !state.isMenuOpen });
 	};
 
-	const loadMap = (lat, lng) => {
-		const maps = google.maps;
-		const mpaNode = ReactDOM.findDOMNode(mapRef.current);
-		const mapConfig: google.maps.MapOptions = {
-			center: {
-				lat,
-				lng,
-			},
-			disableDefaultUI: true,
-			zoom: 13,
-		};
-
-		map = new maps.Map(mpaNode as HTMLElement, mapConfig);
-
-		const userMarkerOptions: google.maps.MarkerOptions = {
-			icon: {
-				path: maps.SymbolPath.CIRCLE,
-				scale: 7,
-			},
-			position: {
-				lat,
-				lng,
-			},
-		};
-
-		setMapT(map);
-		userMarker = new maps.Marker(userMarkerOptions, { title: "I'm here" });
-		userMarker.setMap(map);
-
-		const watchOptions: PositionOptions = {
-			enableHighAccuracy: true,
-		};
-
-		navigator.geolocation.watchPosition(
-			handleGeoWatchSuccess,
-			handleGeoWatchError,
-			watchOptions
-		);
-	};
-
-	const handleGeoSucces = (position: Position) => {
+	const handleGeoSucces = async (position: Position) => {
 		const {
 			coords: { latitude, longitude },
 		} = position;
-		setState((prev) => ({ ...prev, lat: latitude, lng: longitude }));
-		loadMap(latitude, longitude);
-	};
-	const handleGeoError = () => {
-		console.log("No Location");
+		setState({ ...state, lat: latitude, lng: longitude });
+
+		const reverseResult = await reverseGeoCode(latitude, longitude);
+		setState({ ...state, address: reverseResult });
 	};
 
-	const handleGeoWatchSuccess = (position: Position) => {
-		const {
-			coords: { latitude, longitude },
-		} = position;
-		userMarker.setPosition({ lat: latitude, lng: longitude });
-		map.panTo({ lat: latitude, lng: longitude });
-	};
-	const handleGeoWatchError = () => {
-		console.log("Error watching you");
-	};
-
-	const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const {
-			target: { value },
-		} = event;
-		setState((prev) => ({ ...prev, address: value }));
-	};
+	const handleGeoError = () => {};
 
 	const onAddressSubmit = async () => {
-		const maps = google.maps;
-		const result = await geoCode(state.address);
+		const result = await geoCode(state.toAddress);
+		const bounds = new window.google.maps.LatLngBounds();
 
 		if (result !== false) {
 			const { lat, lng, formatted_address } = result;
-
-			if (toMarker) {
-				toMarker.setMap(null);
-			}
-			const toMarkerOptions: google.maps.MarkerOptions = {
-				position: {
-					lat,
-					lng,
-				},
-			};
-
-			toMarker = new maps.Marker(toMarkerOptions);
-			toMarker.setMap(mapT);
-			const bounds = new maps.LatLngBounds();
 			bounds.extend({ lat, lng });
 			bounds.extend({ lat: state.lat, lng: state.lng });
 			mapT.fitBounds(bounds);
 
 			state.toLat = lat;
 			state.toLng = lng;
+			state.toAddress = formatted_address;
 
 			setState({
 				...state,
 				toLat: lat,
 				toLng: lng,
-				address: formatted_address,
+				toAddress: formatted_address,
 			});
 		}
 	};
 
+	const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const {
+			target: { value },
+		} = event;
+		setState({ ...state, toAddress: value });
+	};
+
+	const setPrice = () => {
+		const { distance } = state;
+		if (distance) {
+			setState({
+				...state,
+				price: Number(parseFloat(distance.replace(",", "")) * 3).toFixed(2),
+			});
+		}
+	};
+
+	const onCallback = (result) => {
+		const renderOptions: google.maps.DirectionsRendererOptions = {
+			polylineOptions: {
+				strokeColor: "#000",
+			},
+			suppressMarkers: true,
+		};
+
+		let directions = new google.maps.DirectionsRenderer(renderOptions);
+		if (result?.status === "OK") {
+			const { routes } = result;
+			const {
+				distance: { text: distance },
+				duration: { text: duration },
+			} = routes[0].legs[0];
+
+			directions.setDirections(result);
+			directions.setMap(mapT);
+			setState({ ...state, distance, duration });
+			setPrice();
+		}
+	};
+
+	const onLoad = useCallback(function callback(map) {
+		setMap(map);
+	}, []);
+
 	useEffect(() => {
 		navigator.geolocation.getCurrentPosition(handleGeoSucces, handleGeoError);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	});
+
 	return (
 		<HomePresenter
+			onLoad={onLoad}
 			state={state}
 			toggleMenu={toggleMenu}
 			loading={loading}
-			mapRef={mapRef}
 			onChange={onInputChange}
 			onSubmit={onAddressSubmit}
+			callback={onCallback}
 		/>
 	);
 };
 
-export default HomeContainer;
+export default React.memo(HomeContainer);
