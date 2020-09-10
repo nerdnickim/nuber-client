@@ -54,3 +54,33 @@ export const REQUEST_RIDE = gql`
 		}
 	}
 `;
+
+export const GET_NEARBY_RIDE = gql`
+	query getNearbyRide {
+		GetNearbyRide {
+			ok
+			error
+			ride {
+				id
+				pickUpAddress
+				dropOffAddress
+				price
+				distance
+				duration
+				passenger {
+					fullName
+					profilePhoto
+				}
+			}
+		}
+	}
+`;
+
+export const UPDATE_RIDE_STATUS = gql`
+	mutation updateRideStatus($id: Int!) {
+		UpdateRideStatus(id: $id, status: ACCEPTED) {
+			ok
+			error
+		}
+	}
+`;

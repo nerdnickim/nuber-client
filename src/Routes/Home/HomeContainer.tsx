@@ -10,10 +10,19 @@ import {
 	reportMovementVariables,
 	requestRide,
 	requestRideVariables,
+	getNearbyRide,
+	updateRideStatusVariables,
+	updateRideStatus,
 } from "src/types/api";
 import { USER_PROFILE } from "src/Shared.queries";
 import { geoCode, reverseGeoCode } from "src/mapHelpers";
-import { GET_NEARBY_DRIVERS, REPORT_LOCATION, REQUEST_RIDE } from "./Home.queries";
+import {
+	GET_NEARBY_DRIVERS,
+	REPORT_LOCATION,
+	REQUEST_RIDE,
+	GET_NEARBY_RIDE,
+	UPDATE_RIDE_STATUS,
+} from "./Home.queries";
 
 interface IProps {
 	google: any;
@@ -35,9 +44,16 @@ const HomeContainer: React.FC<IProps> = () => {
 		distance: "",
 		duration: "",
 		price: 0,
+		isDriving: false,
 	});
 	const [driversState, setDriversState] = useState([{ id: 0, lat: 0, lng: 0 }]);
+	const [updateRideMutation] = useMutation<updateRideStatus, updateRideStatusVariables>(
+		UPDATE_RIDE_STATUS
+	);
 	const { loading, data: getUserProfile } = useQuery<userProfile>(USER_PROFILE);
+	const { data: getNearbyRideData } = useQuery<getNearbyRide>(GET_NEARBY_RIDE, {
+		skip: !getUserProfile?.GetMyProfile?.user?.isDriving,
+	});
 	const [requestRideMutation] = useMutation<requestRide, requestRideVariables>(
 		REQUEST_RIDE
 	);
@@ -81,22 +97,34 @@ const HomeContainer: React.FC<IProps> = () => {
 
 		const reverseResult = await reverseGeoCode(latitude, longitude);
 
-		setState({
-			...state,
-			lat: latitude,
-			lng: longitude,
-			address: reverseResult,
-		});
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		await useReportMutation({
 			variables: { lat: 46.23, lng: 2.21 },
 		});
+
+		if (
+			getUserProfile &&
+			getUserProfile?.GetMyProfile &&
+			getUserProfile?.GetMyProfile?.user
+		) {
+			const {
+				GetMyProfile: { user },
+			} = getUserProfile;
+			state.isDriving = user.isDriving;
+			setState({
+				...state,
+				lat: latitude,
+				lng: longitude,
+				address: reverseResult,
+				isDriving: user?.isDriving,
+			});
+		}
 	};
 
 	const handleGeoError = () => {};
 
 	const requestHandle = async () => {
-		const { data } = await requestRideMutation({
+		await requestRideMutation({
 			variables: {
 				pickUpAddress: state.address,
 				pickUpLat: state.lat,
@@ -109,8 +137,6 @@ const HomeContainer: React.FC<IProps> = () => {
 				duration: state.duration,
 			},
 		});
-
-		console.log(data);
 	};
 
 	const onAddressSubmit = async () => {
@@ -199,6 +225,8 @@ const HomeContainer: React.FC<IProps> = () => {
 					getUserProfile={getUserProfile}
 					driversState={driversState}
 					requestHandle={requestHandle}
+					getRide={getNearbyRideData}
+					updateRideMutation={updateRideMutation}
 				/>
 			)}
 		</React.Fragment>

@@ -8,6 +8,7 @@ import Button from "src/Components/Button";
 import { GoogleMap, LoadScript, Marker, DirectionsService } from "@react-google-maps/api";
 import { MAPS_KEY } from "src/keys";
 import { marker_Me, marker_driver } from "src/Components/Icons";
+import RidePopUp from "src/Components/RidePopUp";
 
 const Container = styled.div``;
 
@@ -58,6 +59,8 @@ const HomePresenter = ({
 	getUserProfile,
 	driversState,
 	requestHandle,
+	getRide,
+	updateRideMutation,
 }) => {
 	return (
 		<Container>
@@ -139,6 +142,9 @@ const HomePresenter = ({
 									/>
 								</ExtendedButton>
 							</Fragment>
+						)}
+						{state.isDriving === true && (
+							<RidePopUp getRide={getRide} updateRideMutation={updateRideMutation} />
 						)}
 					</GoogleMap>
 				</LoadScript>
