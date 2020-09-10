@@ -22,6 +22,9 @@ const wsLink = new WebSocketLink({
 	uri: "ws://localhost:4000/subscription",
 	options: {
 		reconnect: true,
+		connectionParams: {
+			"x-jwt": localStorage.getItem("jwt") || "",
+		},
 	},
 });
 

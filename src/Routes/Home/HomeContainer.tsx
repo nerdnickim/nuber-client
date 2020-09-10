@@ -8,10 +8,12 @@ import {
 	getDrivers,
 	reportMovement,
 	reportMovementVariables,
+	requestRide,
+	requestRideVariables,
 } from "src/types/api";
 import { USER_PROFILE } from "src/Shared.queries";
 import { geoCode, reverseGeoCode } from "src/mapHelpers";
-import { GET_NEARBY_DRIVERS, REPORT_LOCATION } from "./Home.queries";
+import { GET_NEARBY_DRIVERS, REPORT_LOCATION, REQUEST_RIDE } from "./Home.queries";
 
 interface IProps {
 	google: any;
@@ -32,11 +34,13 @@ const HomeContainer: React.FC<IProps> = () => {
 		response: undefined,
 		distance: "",
 		duration: "",
-		price: "",
+		price: 0,
 	});
 	const [driversState, setDriversState] = useState([{ id: 0, lat: 0, lng: 0 }]);
 	const { loading, data: getUserProfile } = useQuery<userProfile>(USER_PROFILE);
-
+	const [requestRideMutation] = useMutation<requestRide, requestRideVariables>(
+		REQUEST_RIDE
+	);
 	useQuery<getDrivers>(GET_NEARBY_DRIVERS, {
 		pollInterval: 1000,
 		skip: getUserProfile?.GetMyProfile?.user?.isDriving === true,
@@ -91,6 +95,24 @@ const HomeContainer: React.FC<IProps> = () => {
 
 	const handleGeoError = () => {};
 
+	const requestHandle = async () => {
+		const { data } = await requestRideMutation({
+			variables: {
+				pickUpAddress: state.address,
+				pickUpLat: state.lat,
+				pickUpLng: state.lng,
+				dropOffAddress: state.toAddress,
+				dropOffLat: state.toLat,
+				dropOffLng: state.toLng,
+				price: state.price,
+				distance: state.distance,
+				duration: state.duration,
+			},
+		});
+
+		console.log(data);
+	};
+
 	const onAddressSubmit = async () => {
 		const result = await geoCode(state.toAddress);
 		const bounds = new window.google.maps.LatLngBounds();
@@ -126,7 +148,7 @@ const HomeContainer: React.FC<IProps> = () => {
 		if (distance) {
 			setState({
 				...state,
-				price: Number(parseFloat(distance.replace(",", "")) * 3).toFixed(2),
+				price: parseFloat(Number(parseFloat(distance.replace(",", "")) * 3).toFixed(2)),
 			});
 		}
 	};
@@ -176,6 +198,7 @@ const HomeContainer: React.FC<IProps> = () => {
 					callback={onCallback}
 					getUserProfile={getUserProfile}
 					driversState={driversState}
+					requestHandle={requestHandle}
 				/>
 			)}
 		</React.Fragment>

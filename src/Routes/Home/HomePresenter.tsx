@@ -57,6 +57,7 @@ const HomePresenter = ({
 	callback,
 	getUserProfile,
 	driversState,
+	requestHandle,
 }) => {
 	return (
 		<Container>
@@ -113,11 +114,11 @@ const HomePresenter = ({
 								callback={callback}
 							/>
 						)}
-						{state.price !== "" && (
+						{state.price !== 0 && (
 							<RequestButton>
 								<Button
-									onClick={onSubmit}
-									disabled={state.toAddress === ""}
+									onClick={requestHandle}
+									disabled={state.price === 0}
 									value={`Request Ride ($${state.price})`}
 								/>
 							</RequestButton>
