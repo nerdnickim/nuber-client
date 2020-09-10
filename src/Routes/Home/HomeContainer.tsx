@@ -5,36 +5,19 @@ import HomePresenter from "./HomePresenter";
 import { useQuery, useMutation } from "@apollo/client";
 import {
 	userProfile,
+	getDrivers,
 	reportMovement,
 	reportMovementVariables,
-	getDrivers,
 } from "src/types/api";
 import { USER_PROFILE } from "src/Shared.queries";
 import { geoCode, reverseGeoCode } from "src/mapHelpers";
-import { REPORT_LOCATION, GET_NEARBY_DRIVERS } from "./Home.queries";
+import { GET_NEARBY_DRIVERS, REPORT_LOCATION } from "./Home.queries";
 
 interface IProps {
 	google: any;
 }
 
 const HomeContainer: React.FC<IProps> = () => {
-	const { loading, data: getUserProfile } = useQuery<userProfile>(USER_PROFILE);
-	const [reportMovementMutation] = useMutation<reportMovement, reportMovementVariables>(
-		REPORT_LOCATION
-	);
-	const { data: getDriversData } = useQuery<getDrivers>(GET_NEARBY_DRIVERS, {
-		skip: getUserProfile?.GetMyProfile?.user?.isDriving,
-		onCompleted: () => {
-			if (getDriversData) {
-				const {
-					GetNearbyDrivers: { ok, drivers },
-				} = getDriversData;
-				if (ok && drivers) {
-					console.log(drivers);
-				}
-			}
-		},
-	});
 	const [mapT, setMap] = useState<any>(null);
 
 	const [state, setState] = useState({
@@ -51,6 +34,37 @@ const HomeContainer: React.FC<IProps> = () => {
 		duration: "",
 		price: "",
 	});
+	const [driversState, setDriversState] = useState([{ id: 0, lat: 0, lng: 0 }]);
+	const { loading, data: getUserProfile } = useQuery<userProfile>(USER_PROFILE);
+
+	useQuery<getDrivers>(GET_NEARBY_DRIVERS, {
+		pollInterval: 1000,
+		skip: getUserProfile?.GetMyProfile?.user?.isDriving === true,
+		onCompleted: async (data) => {
+			if (data) {
+				const {
+					GetNearbyDrivers: { ok, drivers },
+				} = data;
+				if (ok && drivers) {
+					for (const driver of drivers) {
+						if (driver && driver.lastLat && driver.lastLng) {
+							const { lastLat, lastLng, id } = driver;
+							driversState.map((p) => [
+								(p.id = id),
+								(p.lat = lastLat),
+								(p.lng = lastLng),
+							]);
+							setDriversState([{ id: id, lat: lastLat, lng: lastLng }]);
+						}
+					}
+				}
+			}
+		},
+	});
+
+	const [useReportMutation] = useMutation<reportMovement, reportMovementVariables>(
+		REPORT_LOCATION
+	);
 
 	const toggleMenu = () => {
 		setState({ ...state, isMenuOpen: !state.isMenuOpen });
@@ -60,15 +74,19 @@ const HomeContainer: React.FC<IProps> = () => {
 		const {
 			coords: { latitude, longitude },
 		} = position;
-		setState({ ...state, lat: latitude, lng: longitude });
 
 		const reverseResult = await reverseGeoCode(latitude, longitude);
-		setState({ ...state, address: reverseResult });
 
-		const { data } = await reportMovementMutation({
-			variables: { lat: latitude, lng: longitude },
+		setState({
+			...state,
+			lat: latitude,
+			lng: longitude,
+			address: reverseResult,
 		});
-		console.log(data);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		await useReportMutation({
+			variables: { lat: 46.23, lng: 2.21 },
+		});
 	};
 
 	const handleGeoError = () => {};
@@ -142,7 +160,8 @@ const HomeContainer: React.FC<IProps> = () => {
 
 	useEffect(() => {
 		navigator.geolocation.getCurrentPosition(handleGeoSucces, handleGeoError);
-	});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<React.Fragment>
@@ -155,6 +174,8 @@ const HomeContainer: React.FC<IProps> = () => {
 					onChange={onInputChange}
 					onSubmit={onAddressSubmit}
 					callback={onCallback}
+					getUserProfile={getUserProfile}
+					driversState={driversState}
 				/>
 			)}
 		</React.Fragment>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Helmet } from "react-helmet";
 import Sidebar from "react-sidebar";
 import styled from "../../typed-components";
@@ -7,7 +7,7 @@ import AddressBar from "src/Components/AddressBar";
 import Button from "src/Components/Button";
 import { GoogleMap, LoadScript, Marker, DirectionsService } from "@react-google-maps/api";
 import { MAPS_KEY } from "src/keys";
-import { marker_Me } from "src/Components/Icons";
+import { marker_Me, marker_driver } from "src/Components/Icons";
 
 const Container = styled.div``;
 
@@ -55,6 +55,8 @@ const HomePresenter = ({
 	onChange,
 	onSubmit,
 	callback,
+	getUserProfile,
+	driversState,
 }) => {
 	return (
 		<Container>
@@ -73,12 +75,6 @@ const HomePresenter = ({
 					},
 				}}
 			>
-				<AddressBar
-					value={state.toAddress}
-					onBlur={() => null}
-					onChange={onChange}
-					name={"address"}
-				/>
 				{!loading && <MunuButton onClick={toggleMenu}>|||</MunuButton>}
 				<LoadScript googleMapsApiKey={MAPS_KEY}>
 					<GoogleMap
@@ -94,6 +90,18 @@ const HomePresenter = ({
 								title={"To Place"}
 								animation={window.google.maps.Animation.DROP}
 							/>
+						)}
+						{driversState.map(
+							(p) =>
+								p.lat !== 0 &&
+								p.lng !== 0 && (
+									<Marker
+										key={p.id}
+										position={{ lat: p.lat, lng: p.lng }}
+										icon={{ path: marker_driver }}
+										title={"driver"}
+									/>
+								)
 						)}
 						{state.address !== "" && state.toAddress !== "" && (
 							<DirectionsService
@@ -114,15 +122,25 @@ const HomePresenter = ({
 								/>
 							</RequestButton>
 						)}
+						{getUserProfile?.GetMyProfile?.user?.isDriving === true ? null : (
+							<Fragment>
+								<AddressBar
+									value={state.toAddress}
+									onBlur={() => null}
+									onChange={onChange}
+									name={"address"}
+								/>
+								<ExtendedButton>
+									<Button
+										value={state.price !== "" ? "Change Address" : "Pick this place"}
+										disabled={state.toAddress === ""}
+										onClick={onSubmit}
+									/>
+								</ExtendedButton>
+							</Fragment>
+						)}
 					</GoogleMap>
 				</LoadScript>
-				<ExtendedButton>
-					<Button
-						value={state.price !== "" ? "Change Address" : "Pick this place"}
-						disabled={state.toAddress === ""}
-						onClick={onSubmit}
-					/>
-				</ExtendedButton>
 			</Sidebar>
 		</Container>
 	);
