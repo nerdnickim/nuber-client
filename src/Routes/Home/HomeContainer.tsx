@@ -1,6 +1,5 @@
 /*Global googl */
 import React, { useState, useCallback, useEffect } from "react";
-
 import HomePresenter from "./HomePresenter";
 import { useQuery, useMutation } from "@apollo/client";
 import {
@@ -30,7 +29,6 @@ interface IProps {
 
 const HomeContainer: React.FC<IProps> = () => {
 	const [mapT, setMap] = useState<any>(null);
-
 	const [state, setState] = useState({
 		isMenuOpen: false,
 		lat: 0,
@@ -90,36 +88,40 @@ const HomeContainer: React.FC<IProps> = () => {
 		setState({ ...state, isMenuOpen: !state.isMenuOpen });
 	};
 
-	const handleGeoSucces = async (position: Position) => {
-		const {
-			coords: { latitude, longitude },
-		} = position;
-
-		const reverseResult = await reverseGeoCode(latitude, longitude);
-
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		await useReportMutation({
-			variables: { lat: 46.23, lng: 2.21 },
-		});
-
-		if (
-			getUserProfile &&
-			getUserProfile?.GetMyProfile &&
-			getUserProfile?.GetMyProfile?.user
-		) {
+	const handleGeoSucces = useCallback(
+		async (position: Position) => {
 			const {
-				GetMyProfile: { user },
-			} = getUserProfile;
-			state.isDriving = user.isDriving;
-			setState({
-				...state,
-				lat: latitude,
-				lng: longitude,
-				address: reverseResult,
-				isDriving: user?.isDriving,
+				coords: { latitude, longitude },
+			} = position;
+
+			const reverseResult = await reverseGeoCode(latitude, longitude);
+
+			// eslint-disable-next-line react-hooks/rules-of-hooks
+			await useReportMutation({
+				variables: { lat: 46.23, lng: 2.21 },
 			});
-		}
-	};
+
+			if (
+				getUserProfile &&
+				getUserProfile?.GetMyProfile &&
+				getUserProfile?.GetMyProfile?.user
+			) {
+				const {
+					GetMyProfile: { user },
+				} = getUserProfile;
+				state.isDriving = user.isDriving;
+				setState({
+					...state,
+					lat: latitude,
+					lng: longitude,
+					address: reverseResult,
+					isDriving: user?.isDriving,
+				});
+			}
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[getUserProfile, useReportMutation]
+	);
 
 	const handleGeoError = () => {};
 
@@ -186,8 +188,8 @@ const HomeContainer: React.FC<IProps> = () => {
 			},
 			suppressMarkers: true,
 		};
-
 		let directions = new google.maps.DirectionsRenderer(renderOptions);
+
 		if (result?.status === "OK") {
 			const { routes } = result;
 			const {
@@ -208,11 +210,10 @@ const HomeContainer: React.FC<IProps> = () => {
 
 	useEffect(() => {
 		navigator.geolocation.getCurrentPosition(handleGeoSucces, handleGeoError);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [handleGeoSucces]);
 
 	return (
-		<React.Fragment>
+		<>
 			{getUserProfile?.GetMyProfile?.user && (
 				<HomePresenter
 					onLoad={onLoad}
@@ -229,7 +230,7 @@ const HomeContainer: React.FC<IProps> = () => {
 					updateRideMutation={updateRideMutation}
 				/>
 			)}
-		</React.Fragment>
+		</>
 	);
 };
 
