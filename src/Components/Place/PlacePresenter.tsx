@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { MutationFunctionOptions, FetchResult } from "@apollo/client";
+import { MutationFunction } from "@apollo/client";
+import { EditPlace, EditPlaceVariables } from "src/types/api";
 
 const Place = styled.div`
 	margin: 15px 0;
@@ -33,17 +34,7 @@ interface IProps {
 
 	name: string | undefined;
 	address: string | undefined;
-	mutation: (
-		options?:
-			| MutationFunctionOptions<
-					any,
-					{
-						id: any;
-						isFav: boolean;
-					}
-			  >
-			| undefined
-	) => Promise<FetchResult<any, Record<string, any>, Record<string, any>>>;
+	mutation: MutationFunction<EditPlace, EditPlaceVariables>;
 }
 
 const PlacePresenter: React.SFC<IProps> = ({ fav, name, address, mutation }) => (

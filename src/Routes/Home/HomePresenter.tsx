@@ -156,7 +156,7 @@ const HomePresenter: React.FC<IProps> = ({
 								<DirectionsService
 									options={{
 										destination: { lat: state.toLat, lng: state.toLng },
-										origin: { lat: state.lat, lng: state.lng },
+										origin: { lat: 46.23, lng: 2.21 },
 										travelMode: state.travelMode,
 									}}
 									callback={(result) => callback(result)}
@@ -188,7 +188,7 @@ const HomePresenter: React.FC<IProps> = ({
 									</ExtendedButton>
 								</Fragment>
 							)}
-							{state.isDriving === true && (
+							{state.isDriving === true && getRide?.GetNearbyRide?.ride && (
 								<RidePopUp getRide={getRide} updateRideMutation={updateRideMutation} />
 							)}
 						</GoogleMap>

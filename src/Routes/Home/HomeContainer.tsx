@@ -1,7 +1,12 @@
 /*Global googl */
 import React, { useState, useCallback, useEffect } from "react";
 import HomePresenter from "./HomePresenter";
-import { useQuery, useMutation } from "@apollo/client";
+import {
+	useQuery,
+	useMutation,
+	useSubscription,
+	SubscribeToMoreOptions,
+} from "@apollo/client";
 import {
 	userProfile,
 	getDrivers,
@@ -12,6 +17,7 @@ import {
 	getNearbyRide,
 	updateRideStatusVariables,
 	updateRideStatus,
+	neabyRideSubscription,
 } from "src/types/api";
 import { USER_PROFILE } from "src/Shared.queries";
 import { geoCode, reverseGeoCode } from "src/mapHelpers";
@@ -21,7 +27,9 @@ import {
 	REQUEST_RIDE,
 	GET_NEARBY_RIDE,
 	UPDATE_RIDE_STATUS,
+	SUBSCRIBE_NEARBY_RIDES,
 } from "./Home.queries";
+import { toast } from "react-toastify";
 
 interface IProps {
 	google: any;
@@ -44,14 +52,21 @@ const HomeContainer: React.FC<IProps> = () => {
 		price: 0,
 		isDriving: false,
 	});
+
 	const [driversState, setDriversState] = useState([{ id: 0, lat: 0, lng: 0 }]);
 	const [updateRideMutation] = useMutation<updateRideStatus, updateRideStatusVariables>(
 		UPDATE_RIDE_STATUS
 	);
 	const { loading, data: getUserProfile } = useQuery<userProfile>(USER_PROFILE);
-	const { data: getNearbyRideData } = useQuery<getNearbyRide>(GET_NEARBY_RIDE, {
+	useSubscription<neabyRideSubscription>(SUBSCRIBE_NEARBY_RIDES, {
 		skip: !getUserProfile?.GetMyProfile?.user?.isDriving,
 	});
+	const { data: getNearbyRideData, subscribeToMore } = useQuery<getNearbyRide>(
+		GET_NEARBY_RIDE,
+		{
+			skip: !getUserProfile?.GetMyProfile?.user?.isDriving,
+		}
+	);
 	const [requestRideMutation] = useMutation<requestRide, requestRideVariables>(
 		REQUEST_RIDE
 	);
@@ -126,7 +141,7 @@ const HomeContainer: React.FC<IProps> = () => {
 	const handleGeoError = () => {};
 
 	const requestHandle = async () => {
-		await requestRideMutation({
+		const { data } = await requestRideMutation({
 			variables: {
 				pickUpAddress: state.address,
 				pickUpLat: state.lat,
@@ -139,6 +154,34 @@ const HomeContainer: React.FC<IProps> = () => {
 				duration: state.duration,
 			},
 		});
+		if (data) {
+			const { RequestRide } = data;
+			if (RequestRide.ok) {
+				toast.success("Drive requested, finding a driver");
+			} else {
+				toast.error(RequestRide.error);
+			}
+		}
+		const rideSubscriptionOptions: SubscribeToMoreOptions = {
+			document: SUBSCRIBE_NEARBY_RIDES,
+			updateQuery: (prev, { subscriptionData }) => {
+				if (!subscriptionData.data) {
+					return prev;
+				}
+
+				const newObject = Object.assign({}, prev, {
+					GetNearbyRide: {
+						...prev.GetNearbyRide,
+						ride: subscriptionData.data.NeabyRideSubscription,
+					},
+				});
+				return newObject;
+			},
+		};
+
+		if (getUserProfile?.GetMyProfile?.user?.isDriving) {
+			subscribeToMore(rideSubscriptionOptions);
+		}
 	};
 
 	const onAddressSubmit = async () => {

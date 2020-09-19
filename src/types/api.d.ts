@@ -200,6 +200,7 @@ export interface getNearbyRide_GetNearbyRide_ride_passenger {
 
 export interface getNearbyRide_GetNearbyRide_ride {
   __typename: "Ride";
+  id: number;
   pickUpAddress: string;
   dropOffAddress: string;
   price: number;
@@ -240,6 +241,36 @@ export interface updateRideStatus {
 
 export interface updateRideStatusVariables {
   id: number;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// @generated
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL subscription operation: neabyRideSubscription
+// ====================================================
+
+export interface neabyRideSubscription_NeabyRideSubscription_passenger {
+  __typename: "User";
+  fullName: string | null;
+  profilePhoto: string | null;
+}
+
+export interface neabyRideSubscription_NeabyRideSubscription {
+  __typename: "Ride";
+  id: number;
+  pickUpAddress: string;
+  dropOffAddress: string;
+  price: number;
+  distance: string;
+  duration: string;
+  passenger: neabyRideSubscription_NeabyRideSubscription_passenger;
+}
+
+export interface neabyRideSubscription {
+  NeabyRideSubscription: neabyRideSubscription_NeabyRideSubscription | null;
 }
 
 /* tslint:disable */

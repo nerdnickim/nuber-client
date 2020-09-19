@@ -1,1 +1,1 @@
-export const MAPS_KEY = "AIzaSyC7xPxZEkC_QjEsTZ2gd-kj0BuaMpmBK20";
+export const MAPS_KEY = "AIzaSyAJ-6FzErj1uMaN_SvjEOXp2-hKrINGv3c";
